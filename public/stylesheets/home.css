@@ -1,0 +1,59 @@
+* {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: "Lato", sans-serif;
+    
+}
+
+/*class*/
+.navheader {
+    color: white;
+    text-decoration: none;
+    padding: 0px 100px;
+    width: 30px;
+    height: 20px;
+}
+
+.navheader:hover {
+    color: gray !important;
+}
+
+.charts {
+    margin-left: 128px;
+    margin-right: 500px;
+}
+
+.pad {
+    color: none !important;
+    width: 1536px;
+    height: 20px;
+    padding: 25px 0;
+}
+
+/*id*/
+#navbar {
+    background-color: black;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    padding: 20px;
+    position: fixed;
+}
+
+#logoutBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    padding: 10px 20px;
+    background-color: gray;
+    color: #fff;
+    border: none;
+}
+
+#logoutBtn:hover {
+    background-color: black;
+}

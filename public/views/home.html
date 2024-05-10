@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width = device-width, initial-scale = 1.0">
+    <title>HOME</title>
+    <link rel="stylesheet" href="/stylesheets/home.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Lato:ital,wght@0,100;0,300;0,400;0,700;0,900;1,100;1,300;1,400;1,700;1,900&display=swap"
+        rel="stylesheet">
+
+</head>
+
+<body>
+
+    <nav id="navbar">
+
+        <a href="#padRain" class="navheader">RAINFALL</a>
+        <a href="#padWind" class="navheader">WIND SPEED</a>
+        <a href="#padTemp" class="navheader">TEMPERATURE</a>
+        <a href="#padHumi" class="navheader">HUMIDITY</a>
+        <a href="#padGas" class="navheader">GAS</a>
+
+        <!-- <a href="#padAqi" class="navheader">AQI</a>
+        <a href="#padWind" class="navheader">WIND SPEED</a>
+        <a href="#padTemp" class="navheader">TEMPERATURE</a>
+        <a href="#padHumi" class="navheader">HUMIDITY</a>
+        <a href="#padPm" class="navheader">PM</a>
+        <a href="#padCo2" class="navheader">CO2</a>   -->
+
+    </nav>
+    <div>
+
+        <div>
+
+            <p class="pad" id="padRain"> </p>
+            <canvas id="rainChart" class="charts"></canvas>
+
+        </div>
+        <div>
+
+            <p class="pad" id="padWind"> </p>
+            <canvas id="windChart" class="charts"></canvas>
+
+        </div>
+        <div>
+
+            <p class="pad" id="padTemp"> </p>
+            <canvas id="temperatureChart" class="charts"></canvas>
+
+        </div>
+        <div>
+
+            <p class="pad" id="padHumi"> </p>
+            <canvas id="humidityChart" class="charts"></canvas>
+
+        </div>
+        <div>
+
+            <p class="pad" id="padGas"> </p>
+            <canvas id="gasChart" class="charts"></canvas>
+
+        </div>
+        <button id="logoutBtn">Logout</button>
+
+    </div>
+    <!-- soccket -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+        socket.on('connect', () => {
+            console.log('connected');
+        });
+        socket.on("/web/up-data", (data) => {
+        })
+
+
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+
+        document.getElementById("logoutBtn").addEventListener("click", function (event) {
+            event.preventDefault()
+            fetch("/logout",
+                {
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    method: "POST",
+                    body: JSON.stringify()
+                })
+            window.location.href = "/login"
+        })
+
+        const envirData = {
+            rain: {
+                data: [[]],
+                label: "Rainfall (mm)"
+            },
+            wind: {
+                data: [[]],
+                label: "Wind Speed (m/s)"
+            },
+            temp: {
+                data: [[]],
+                label: "Temperature (C)"
+            },
+            humi: {
+                data: [[]],
+                label: "Humidity (%)"
+            },
+        }
+
+        const concenData = {
+            CO2: {
+                gasData: [[]],
+                gasLabel: "CO2 (g/cm3)",
+            },
+            SO2: {
+                gasData: [[]],
+                gasLabel: "SO2 (g/cm3)",
+            },
+            SO: {
+                gasData: [[]],
+                gasLabel: "SO (g/cm3)",
+            },
+            O2: {
+                gasData: [[]],
+                gasLabel: "O2 (g/cm3)",
+            },
+        }
+
+        function getTimeInHHMM(date) {
+            if (!date) {
+                date = new Date()
+            } else {
+                date = new Date(date)
+            }
+            let output = ""
+            let HH = date.getHours();
+            let MM = date.getMinutes();
+            output = `${HH}:${MM}`
+            return output;
+        }
+
+        function getRandom(a, b) {
+            return Math.floor(Math.random() * (b - a) + a)
+        }
+
+
+
+        async function getChartData(type) {
+            if (type) {
+                let response = await fetch(`/api/data/${type}`)
+                let result = await response.json()
+                return {
+                    result: result,
+                    type: type
+                }
+            } else {
+                let response = await fetch(`/api/data`)
+                let result = await response.json()
+                return {
+                    result: result,
+                    type: type
+                }
+            }
+        }
+
+        function addEnvirIn4(nameChart, newLabel, newData) {
+            nameChart.data.labels.push(newLabel);
+            nameChart.data.datasets[0].data.push(newData);
+            nameChart.update();
+        }
+
+        function addGasIn4(newGasLabel, newCO2Data, newSO2Data, newSOData, newO2Data) {
+            gasChart.data.labels.push(newGasLabel);
+            gasChart.data.datasets[0].data.push(newCO2Data);
+            gasChart.data.datasets[1].data.push(newSO2Data);
+            gasChart.data.datasets[2].data.push(newSOData);
+            gasChart.data.datasets[3].data.push(newO2Data);
+            gasChart.update();
+        }
+
+        function getChartConfig(datas, label) {
+            let labels = datas.map(data => {
+                return data[0]
+            })
+            let dataset = datas.map(data => {
+                return data[1]
+            })
+            return {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: `${label}`,
+                        data: dataset,
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            }
+        }
+
+        function getGasDataset(gasDatasets) {
+            let gasDataset = gasDatasets.gasData.map(gasData => {
+                return gasData[1]
+            })
+            return gasDataset
+        }
+
+        function getGasChartConfig(gasDatas) {
+            let gasDatasets = [];
+            for (let gas in gasDatas) {
+                if (gasDatas.hasOwnProperty(gas)) {
+                    let gasData = gasDatas[gas].gasData.map(data => data[1]);
+                    gasDatasets.push({
+                        label: gasDatas[gas].gasLabel,
+                        data: gasData,
+                        borderWidth: 1
+                    });
+                }
+            }
+            let labels = gasDatas.CO2.gasData.map(gasData => gasData[0]);
+            return {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: gasDatasets
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                } 
+            };
+        }
+
+        const rain = document.getElementById('rainChart');
+        const wind = document.getElementById('windChart');
+        const temp = document.getElementById('temperatureChart');
+        const humi = document.getElementById('humidityChart');
+        const gas = document.getElementById('gasChart');
+
+        let chartData = localStorage.getItem("chartData")
+        let version = localStorage.getItem("version")
+
+        if (chartData && version) {
+            chartData = JSON.parse(chartData)
+            version = new Date(JSON.parse(version))
+            firstSettup()
+        } else {
+            version = new Date()
+            localStorage.setItem("version", JSON.stringify(version))
+            getChartData().then(res => {
+                chartData = res.result.data
+                localStorage.setItem("chartData", JSON.stringify(chartData))
+                firstSettup();
+            })
+        }
+
+        function firstSettup() {
+            for (let i = 0; i < chartData.length; i++) { //nhiệt độ, độ ẩm, pm (1, 2.5, 10), aqi, co2, windsped 
+                let label1 = getTimeInHHMM(chartData[i].createdAt);
+                envirData.wind.data.push([label1, chartData[i].wind])
+                envirData.rain.data.push([label1, chartData[i].aqi])
+                envirData.temp.data.push([label1, chartData[i].temp])
+                envirData.humi.data.push([label1, chartData[i].humi])
+                for (let key in concenData) {
+                    let gasRandomData = getRandom(0, 50);
+                    concenData[key].gasData.push([label1, gasRandomData])
+                }
+            }
+
+            let rainChart = new Chart(rain, getChartConfig(envirData.rain.data, envirData.rain.label))
+            let tempChart = new Chart(temp, getChartConfig(envirData.temp.data, envirData.temp.label))
+            let humiChart = new Chart(humi, getChartConfig(envirData.humi.data, envirData.humi.label))
+            let windChart = new Chart(wind, getChartConfig(envirData.wind.data, envirData.wind.label))
+            let gasChart = new Chart(gas, getGasChartConfig(concenData))
+        }
+    </script>
+
+</body>
+
+</html>

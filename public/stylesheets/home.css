@@ -1,23 +1,22 @@
-* {
-    scroll-behavior: smooth;
-}
-
 body {
     font-family: "Lato", sans-serif;
-    
 }
 
 /*class*/
 .navheader {
+    text-align: center;
+    display: inline-block;
     color: white;
     text-decoration: none;
-    padding: 0px 100px;
-    width: 30px;
-    height: 20px;
+    padding: 0px 70px;
+    width: 200px;
+    height: 50px;
+    line-height: 50px;
 }
 
 .navheader:hover {
-    color: gray !important;
+    color: black !important;
+    background-color: #ccc;
 }
 
 .charts {
@@ -40,9 +39,11 @@ body {
     left: 0;
     right: 0;
     z-index: 100;
-    padding: 20px;
-    position: fixed;
-}
+    height: 50px;
+    display: flex;
+    justify-content: space-around; 
+    align-items: center;
+} 
 
 #logoutBtn {
     position: fixed;

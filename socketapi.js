@@ -88,6 +88,7 @@ io.on("connection", (socket) => {
                     medianObj[key] = 0;
                 }
                 curLength = 0;
+                socket.broadcast.emit("/web/up-data", newData);
             } catch (err) {
                 console.error(err.message);
             }
